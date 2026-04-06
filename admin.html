@@ -3,43 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Memorial</title>
+    <title>Painel do Memorial</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Biblioteca que desenha o QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-<body class="bg-blue-50 p-6">
-    <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md">
-        <h1 class="text-2xl font-bold mb-6">Criar Novo Memorial</h1>
+<body class="bg-slate-100 p-4 md:p-10 font-sans">
+
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
         
-        <div class="space-y-4">
-            <input type="text" id="inputNome" placeholder="Nome Completo" class="w-full p-3 border rounded">
-            <input type="text" id="inputNasc" placeholder="Data Nascimento" class="w-full p-3 border rounded">
-            <input type="text" id="inputFalec" placeholder="Data Falecimento" class="w-full p-3 border rounded">
-            <textarea id="inputBio" placeholder="Pequena Biografia" class="w-full p-3 border rounded"></textarea>
+        <!-- Lado Esquerdo: Formulário -->
+        <div class="p-8 md:w-1/2 border-r border-gray-100">
+            <h1 class="text-2xl font-bold text-slate-800 mb-6">Novo Memorial</h1>
             
-            <button onclick="gerarLink()" class="w-full bg-blue-600 text-white py-3 rounded font-bold">
-                Gerar Link do Memorial
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Nome do Homenageado</label>
+                    <input type="text" id="inputNome" placeholder="Ex: João da Silva" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Nascimento</label>
+                        <input type="text" id="inputNasc" placeholder="01/01/1950" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Falecimento</label>
+                        <input type="text" id="inputFalec" placeholder="02/02/2024" class="w-full p-3 border rounded-lg">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Biografia Curta</label>
+                    <textarea id="inputBio" rows="4" placeholder="Conte a história..." class="w-full p-3 border rounded-lg"></textarea>
+                </div>
+
+                <button onclick="criarTudo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
+                    GERAR MEMORIAL E QR CODE
+                </button>
+            </div>
+        </div>
+
+        <!-- Lado Direito: Resultado -->
+        <div id="resultado" class="md:w-1/2 bg-slate-50 p-8 flex flex-col items-center justify-center text-center hidden">
+            <h2 class="text-sm font-bold text-slate-400 uppercase mb-4">QR Code Gerado</h2>
+            
+            <!-- Aqui é onde o QR Code vai aparecer -->
+            <div id="qrcode" class="bg-white p-4 shadow-inner rounded-lg mb-6"></div>
+
+            <p class="text-xs text-slate-500 mb-4">Aponte a câmera para testar</p>
+            
+            <a id="botaoVer" target="_blank" class="text-blue-600 font-bold underline mb-4">Ver Página Online</a>
+
+            <button onclick="window.print()" class="text-xs bg-gray-200 px-4 py-2 rounded text-gray-600">
+                Imprimir para Lápide
             </button>
         </div>
 
-        <div id="resultado" class="mt-8 hidden">
-            <p class="text-sm font-bold text-gray-600">Link do seu Memorial:</p>
-            <textarea id="linkGerado" class="w-full p-2 bg-gray-100 text-xs mt-2 border rounded" readonly rows="3"></textarea>
-            <p class="text-xs text-blue-600 mt-2">Copie o link acima e cole no gerador de QR Code!</p>
-        </div>
     </div>
 
     <script>
-        function gerarLink() {
+        function criarTudo() {
             const nome = document.getElementById('inputNome').value;
             const nasc = document.getElementById('inputNasc').value;
             const falec = document.getElementById('inputFalec').value;
             const bio = document.getElementById('inputBio').value;
 
-            // Aqui ele cria o link com os dados que você digitou
+            // 1. Criar o link
             const baseUrl = window.location.href.replace('admin.html', 'index.html');
             const linkFinal = `${baseUrl}?nome=${encodeURIComponent(nome)}&nasc=${encodeURIComponent(nasc)}&falec=${encodeURIComponent(falec)}&bio=${encodeURIComponent(bio)}`;
 
-            document.getElementById('linkGerado').value = linkFinal;
+            // 2. Limpar o QR Code anterior, se existir
+            document.getElementById('qrcode').innerHTML = "";
+
+            // 3. Gerar o novo QR Code
+            new QRCode(document.getElementById("qrcode"), {
+                text: linkFinal,
+                width: 180,
+                height: 180
+            });
+
+            // 4. Mostrar o resultado
+            document.getElementById('botaoVer').href = linkFinal;
             document.getElementById('resultado').classList.remove('hidden');
         }
     </script>
