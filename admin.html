@@ -3,99 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Pro - Memorial</title>
+    <title>Teste de Botão</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Biblioteca do Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-100 p-4 font-sans text-slate-800">
-
-    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        <div class="p-8 md:w-1/2 border-r">
-            <h1 class="text-2xl font-black text-blue-600 mb-6 italic">MEMORIAL CLOUD</h1>
-            
-            <div class="space-y-4">
-                <input type="text" id="inputNome" placeholder="Nome do Falecido" class="w-full p-3 border rounded-xl bg-slate-50">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="inputNasc" placeholder="Nascimento" class="w-full p-3 border rounded-xl bg-slate-50">
-                    <input type="text" id="inputFalec" placeholder="Falecimento" class="w-full p-3 border rounded-xl bg-slate-50">
-                </div>
-                
-                <div>
-                    <label class="text-xs font-bold text-slate-400">FOTO DO HOMENAGEADO</label>
-                    <input type="file" id="inputFotoArquivo" accept="image/*" class="w-full p-3 border border-dashed rounded-xl bg-blue-50">
-                </div>
-
-                <textarea id="inputBio" rows="3" placeholder="Biografia..." class="w-full p-3 border rounded-xl bg-slate-50"></textarea>
-
-                <button id="btnCriar" onclick="salvarNoBanco()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">
-                    CRIAR E SALVAR MEMORIAL
-                </button>
-            </div>
-        </div>
-
-        <div id="resultado" class="md:w-1/2 bg-slate-900 p-8 flex flex-col items-center justify-center text-center hidden">
-            <div id="qrcode" class="bg-white p-6 rounded-3xl mb-8"></div>
-            <p class="text-blue-400 text-xs mb-4 uppercase font-bold">Salvo no Banco de Dados!</p>
-            <a id="botaoVer" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl mb-4">Ver Página</a>
-            <button onclick="window.print()" class="text-white opacity-50 text-xs">Imprimir QR Code</button>
-        </div>
+<body class="bg-gray-100 p-10">
+    <div class="max-w-md mx-auto bg-white p-8 rounded shadow">
+        <h1 class="mb-4 font-bold text-xl text-blue-600">Teste do Sistema</h1>
+        
+        <input type="text" id="inputNome" placeholder="Digite um nome" class="w-full p-2 border mb-4">
+        
+        <button onclick="salvarNoBanco()" id="btnCriar" class="w-full bg-blue-500 text-white p-4 rounded font-bold">
+            TESTAR BOTÃO
+        </button>
+        
+        <p id="mensagem" class="mt-4 text-green-600 font-bold"></p>
     </div>
 
     <script>
-        // COLE SUAS CHAVES DO SUPABASE AQUI ABAIXO:
-        const SUPABASE_URL = 'https://jfurmgguijnfnuttxusq.supabase.c';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmdXJtZ2d1aWpuZm51dHR4dXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTIyNTcsImV4cCI6MjA5MTA4ODI1N30.pKHK5WVzdc0ctby8nVUGR_gdt3jTEwMqgsBX8e_1cNw';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("O script carregou com sucesso!");
 
-        async function salvarNoBanco() {
-            const btn = document.getElementById('btnCriar');
-            btn.innerText = "Enviando...";
-            btn.disabled = true;
-
+        function salvarNoBanco() {
+            console.log("O botão foi clicado!");
             const nome = document.getElementById('inputNome').value;
-            const nasc = document.getElementById('inputNasc').value;
-            const falec = document.getElementById('inputFalec').value;
-            const bio = document.getElementById('inputBio').value;
-            const fotoFile = document.getElementById('inputFotoArquivo').files[0];
-
-            let fotoUrl = "";
-
-            // 1. Upload da Foto para o Storage
-            if (fotoFile) {
-                const fileName = Date.now() + "_" + fotoFile.name;
-                const { data, error } = await supabase.storage
-                    .from('fotos')
-                    .upload(fileName, fotoFile);
-                
-                if (data) {
-                    const { data: publicUrlData } = supabase.storage
-                        .from('fotos')
-                        .getPublicUrl(fileName);
-                    fotoUrl = publicUrlData.publicUrl;
-                }
-            }
-
-            // 2. Salvar dados na tabela 'memorials'
-            const { data, error } = await supabase
-                .from('memorials')
-                .insert([{ nome, nascimento: nasc, falecimento: falec, biografia: bio, foto_url: fotoUrl }])
-                .select();
-
-            if (data) {
-                const idGerado = data[0].id; // O Banco gera um ID único
-                const baseUrl = window.location.href.replace('admin.html', 'index.html');
-                const linkFinal = `${baseUrl}?id=${idGerado}`; // O link agora usa o ID!
-
-                document.getElementById('qrcode').innerHTML = "";
-                new QRCode(document.getElementById("qrcode"), { text: linkFinal, width: 200, height: 200 });
-                document.getElementById('botaoVer').href = linkFinal;
-                document.getElementById('resultado').classList.remove('hidden');
-            }
             
-            btn.innerText = "CRIAR E SALVAR MEMORIAL";
-            btn.disabled = false;
+            if(!nome) {
+                alert("O botão está funcionando! Mas digite um nome primeiro.");
+                return;
+            }
+
+            document.getElementById('mensagem').innerText = "Sucesso! O botão funcionou para: " + nome;
+            alert("Parabéns! O código está rodando. Agora podemos colocar o Supabase.");
         }
     </script>
 </body>
