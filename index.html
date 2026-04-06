@@ -8,29 +8,43 @@
 </head>
 <body class="bg-stone-100 font-sans text-stone-800">
     <div class="max-w-md mx-auto bg-white min-h-screen shadow-xl pb-10">
-        <img id="foto" src="https://images.unsplash.com/photo-1511227498332-9ef815939ca1?w=500" class="w-full h-72 object-cover">
+        <!-- A foto agora tem o ID 'fotoPrincipal' para o JavaScript mudar -->
+        <img id="fotoPrincipal" src="https://images.unsplash.com/photo-1511227498332-9ef815939ca1?w=500" class="w-full h-80 object-cover shadow-md">
+        
         <div class="p-8 text-center">
-            <h1 id="nome" class="text-3xl font-serif font-bold">Carregando...</h1>
-            <p id="datas" class="text-stone-500 mt-2 italic"></p>
-            <div class="my-8 border-y border-stone-200 py-6 px-4">
-                <p id="biografia" class="italic leading-relaxed text-stone-600"></p>
+            <h1 id="nome" class="text-3xl font-serif font-bold text-stone-900">Carregando...</h1>
+            <p id="datas" class="text-stone-500 mt-2 italic font-light text-lg"></p>
+            
+            <div class="my-8 border-y border-stone-100 py-8 px-4">
+                <p id="biografia" class="italic leading-relaxed text-stone-600 text-lg"></p>
+            </div>
+
+            <div class="mt-10">
+                <p class="text-xs uppercase tracking-[0.3em] text-stone-400 font-bold mb-4">In Memoriam</p>
+                <div class="w-12 h-1 bg-stone-200 mx-auto rounded-full"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // ESSA É A MÁGICA: Ele pega os dados da URL (do link)
         const urlParams = new URLSearchParams(window.location.search);
         
-        const nome = urlParams.get('nome') || "Nome não preenchido";
-        const nascimento = urlParams.get('nasc') || "00/00/0000";
-        const falecimento = urlParams.get('falec') || "00/00/0000";
-        const bio = urlParams.get('bio') || "Nenhuma biografia informada.";
+        // Pega os dados do link
+        const nome = urlParams.get('nome') || "Nome do Homenageado";
+        const nasc = urlParams.get('nasc') || "00/00/0000";
+        const falec = urlParams.get('falec') || "00/00/0000";
+        const bio = urlParams.get('bio') || "A história desta vida será contada aqui...";
+        const foto = urlParams.get('foto'); // NOVO: Pega o link da foto
 
-        // Coloca os dados na página
+        // Preenche a página
         document.getElementById('nome').innerText = nome;
-        document.getElementById('datas').innerText = nascimento + " — " + falecimento;
+        document.getElementById('datas').innerText = nasc + " — " + falec;
         document.getElementById('biografia').innerText = '"' + bio + '"';
+        
+        // Se houver uma foto no link, ele troca a imagem padrão
+        if (foto) {
+            document.getElementById('fotoPrincipal').src = foto;
+        }
     </script>
 </body>
 </html>

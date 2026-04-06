@@ -5,59 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Memorial</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Biblioteca que desenha o QR Code -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-<body class="bg-slate-100 p-4 md:p-10 font-sans">
+<body class="bg-slate-100 p-4 md:p-10 font-sans text-slate-800">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
         
-        <!-- Lado Esquerdo: Formulário -->
+        <!-- Formulário -->
         <div class="p-8 md:w-1/2 border-r border-gray-100">
-            <h1 class="text-2xl font-bold text-slate-800 mb-6">Novo Memorial</h1>
+            <h1 class="text-2xl font-black text-blue-600 mb-6 italic">MEMORIAL PRO <span class="text-slate-400 text-xs not-italic">v1.0</span></h1>
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Nome do Homenageado</label>
-                    <input type="text" id="inputNome" placeholder="Ex: João da Silva" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Nome do Falecido</label>
+                    <input type="text" id="inputNome" placeholder="Ex: Maria Pereira" class="w-full p-3 border rounded-xl bg-slate-50 outline-none focus:border-blue-500">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase">Nascimento</label>
-                        <input type="text" id="inputNasc" placeholder="01/01/1950" class="w-full p-3 border rounded-lg">
+                        <input type="text" id="inputNasc" placeholder="10/05/1940" class="w-full p-3 border rounded-xl bg-slate-50">
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase">Falecimento</label>
-                        <input type="text" id="inputFalec" placeholder="02/02/2024" class="w-full p-3 border rounded-lg">
+                        <input type="text" id="inputFalec" placeholder="15/01/2024" class="w-full p-3 border rounded-xl bg-slate-50">
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Biografia Curta</label>
-                    <textarea id="inputBio" rows="4" placeholder="Conte a história..." class="w-full p-3 border rounded-lg"></textarea>
+                    <label class="text-xs font-bold text-slate-400 uppercase italic">Link da Foto (URL)</label>
+                    <input type="text" id="inputFoto" placeholder="https://site.com/foto.jpg" class="w-full p-3 border rounded-xl bg-blue-50 border-blue-100 outline-none">
+                    <p class="text-[10px] text-slate-400 mt-1">* Use o link de uma foto do Google ou Facebook para testar.</p>
                 </div>
 
-                <button onclick="criarTudo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
-                    GERAR MEMORIAL E QR CODE
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Biografia</label>
+                    <textarea id="inputBio" rows="3" placeholder="Uma breve história..." class="w-full p-3 border rounded-xl bg-slate-50"></textarea>
+                </div>
+
+                <button onclick="criarTudo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg hover:scale-[1.02] active:scale-95">
+                    CRIAR MEMORIAL & QR CODE
                 </button>
             </div>
         </div>
 
-        <!-- Lado Direito: Resultado -->
-        <div id="resultado" class="md:w-1/2 bg-slate-50 p-8 flex flex-col items-center justify-center text-center hidden">
-            <h2 class="text-sm font-bold text-slate-400 uppercase mb-4">QR Code Gerado</h2>
+        <!-- Resultado -->
+        <div id="resultado" class="md:w-1/2 bg-slate-900 p-8 flex flex-col items-center justify-center text-center hidden transition-all">
+            <h2 class="text-blue-400 text-xs font-bold uppercase tracking-widest mb-6">QR Code Gerado com Sucesso</h2>
             
-            <!-- Aqui é onde o QR Code vai aparecer -->
-            <div id="qrcode" class="bg-white p-4 shadow-inner rounded-lg mb-6"></div>
+            <div id="qrcode" class="bg-white p-6 rounded-3xl mb-8 shadow-[0_0_50px_rgba(59,130,246,0.3)]"></div>
 
-            <p class="text-xs text-slate-500 mb-4">Aponte a câmera para testar</p>
-            
-            <a id="botaoVer" target="_blank" class="text-blue-600 font-bold underline mb-4">Ver Página Online</a>
-
-            <button onclick="window.print()" class="text-xs bg-gray-200 px-4 py-2 rounded text-gray-600">
-                Imprimir para Lápide
-            </button>
+            <div class="space-y-4 w-full">
+                <a id="botaoVer" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl">Visualizar Página</a>
+                <button onclick="window.print()" class="block w-full bg-slate-700 text-white py-3 rounded-xl text-sm font-medium">Imprimir QR Code</button>
+            </div>
         </div>
 
     </div>
@@ -68,24 +69,25 @@
             const nasc = document.getElementById('inputNasc').value;
             const falec = document.getElementById('inputFalec').value;
             const bio = document.getElementById('inputBio').value;
+            const foto = document.getElementById('inputFoto').value; // PEGA O LINK DA FOTO
 
-            // 1. Criar o link
             const baseUrl = window.location.href.replace('admin.html', 'index.html');
-            const linkFinal = `${baseUrl}?nome=${encodeURIComponent(nome)}&nasc=${encodeURIComponent(nasc)}&falec=${encodeURIComponent(falec)}&bio=${encodeURIComponent(bio)}`;
+            
+            // Monta o link com todos os dados, incluindo a foto
+            const linkFinal = `${baseUrl}?nome=${encodeURIComponent(nome)}&nasc=${encodeURIComponent(nasc)}&falec=${encodeURIComponent(falec)}&bio=${encodeURIComponent(bio)}&foto=${encodeURIComponent(foto)}`;
 
-            // 2. Limpar o QR Code anterior, se existir
             document.getElementById('qrcode').innerHTML = "";
-
-            // 3. Gerar o novo QR Code
             new QRCode(document.getElementById("qrcode"), {
                 text: linkFinal,
-                width: 180,
-                height: 180
+                width: 200,
+                height: 200,
+                colorDark : "#0f172a",
+                colorLight : "#ffffff",
             });
 
-            // 4. Mostrar o resultado
             document.getElementById('botaoVer').href = linkFinal;
             document.getElementById('resultado').classList.remove('hidden');
+            document.getElementById('resultado').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
