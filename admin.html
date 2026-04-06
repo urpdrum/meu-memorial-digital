@@ -3,36 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste de Botão</title>
+    <title>Painel Memorial Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Biblioteca do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-gray-100 p-10">
-    <div class="max-w-md mx-auto bg-white p-8 rounded shadow">
-        <h1 class="mb-4 font-bold text-xl text-blue-600">Teste do Sistema</h1>
+<body class="bg-slate-100 p-4 font-sans text-slate-800">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
         
-        <input type="text" id="inputNome" placeholder="Digite um nome" class="w-full p-2 border mb-4">
-        
-        <button onclick="salvarNoBanco()" id="btnCriar" class="w-full bg-blue-500 text-white p-4 rounded font-bold">
-            TESTAR BOTÃO
-        </button>
-        
-        <p id="mensagem" class="mt-4 text-green-600 font-bold"></p>
+        <!-- Lado do Formulário -->
+        <div class="p-8 md:w-1/2 border-r border-gray-100">
+            <h1 class="text-2xl font-black text-blue-600 mb-6 italic tracking-tighter">MEMORIAL CLOUD</h1>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Nome do Homenageado</label>
+                    <input type="text" id="inputNome" placeholder="Ex: Marcelo da Costa" class="w-full p-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Nascimento</label>
+                        <input type="text" id="inputNasc" placeholder="01/01/1980" class="w-full p-3 border rounded-xl bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Falecimento</label>
+                        <input type="text" id="inputFalec" placeholder="10/12/2023" class="w-full p-3 border rounded-xl bg-slate-50">
+                    </div>
+                </div>
+                
+                <div class="p-4 border border-dashed rounded-xl bg-blue-50/50">
+                    <label class="text-[10px] font-bold text-slate-400 block mb-2 uppercase">Foto (Clique abaixo)</label>
+                    <input type="file" id="inputFotoArquivo" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+                </div>
+
+                <textarea id="inputBio" rows="3" placeholder="Escreva uma breve homenagem..." class="w-full p-3 border rounded-xl bg-slate-50 outline-none"></textarea>
+
+                <button id="btnCriar" onclick="salvarNoBanco()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95">
+                    CRIAR E SALVAR MEMORIAL
+                </button>
+            </div>
+        </div>
+
+        <!-- Lado do Resultado (QR Code) -->
+        <div id="resultado" class="md:w-1/2 bg-slate-900 p-8 flex flex-col items-center justify-center text-center hidden">
+            <h2 class="text-blue-400 text-[10px] font-bold uppercase tracking-[0.3em] mb-6">Memorial Pronto para Lápide</h2>
+            <div id="qrcode" class="bg-white p-6 rounded-3xl mb-8 shadow-[0_0_50px_rgba(59,130,246,0.3)]"></div>
+            <a id="botaoVer" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl mb-4 hover:bg-blue-50 transition-colors shadow-lg">Visualizar Online</a>
+            <button onclick="window.print()" class="text-white opacity-30 text-[10px] uppercase font-bold tracking-widest hover:opacity-100 transition-opacity cursor-pointer">Imprimir QR Code</button>
+        </div>
+
     </div>
 
     <script>
-        console.log("O script carregou com sucesso!");
+        // CONFIGURAÇÃO DO SUPABASE
+        // IMPORTANTE: Use um nome diferente (supabaseDB) para não dar erro de "Already declared"
+        const MINHA_URL = 'https://jfurmgguijnfnuttxusq.supabase.co'; 
+        const MINHA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmdXJtZ2d1aWpuZm51dHR4dXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTIyNTcsImV4cCI6MjA5MTA4ODI1N30.pKHK5WVzdc0ctby8nVUGR_gdt3jTEwMqgsBX8e_1cNw';
 
-        function salvarNoBanco() {
-            console.log("O botão foi clicado!");
+        // Inicializa a conexão
+        const supabaseDB = supabase.createClient(MINHA_URL, MINHA_KEY);
+
+        async function salvarNoBanco() {
+            console.log("Botão clicado!");
+            const btn = document.getElementById('btnCriar');
             const nome = document.getElementById('inputNome').value;
-            
-            if(!nome) {
-                alert("O botão está funcionando! Mas digite um nome primeiro.");
+            const fotoFile = document.getElementById('inputFotoArquivo').files[0];
+
+            if (!nome) {
+                alert("Por favor, preencha o nome.");
                 return;
             }
 
-            document.getElementById('mensagem').innerText = "Sucesso! O botão funcionou para: " + nome;
-            alert("Parabéns! O código está rodando. Agora podemos colocar o Supabase.");
+            try {
+                btn.innerText = "Salvando... Aguarde";
+                btn.disabled = true;
+
+                let fotoUrlFinal = "";
+
+                // 1. Upload da Foto
+                if (fotoFile) {
+                    console.log("Enviando foto...");
+                    const nomeArquivo = Date.now() + "_" + fotoFile.name.replace(/\s/g, '');
+                    
+                    const { data: upData, error: upError } = await supabaseDB.storage
+                        .from('fotos')
+                        .upload(nomeArquivo, fotoFile);
+
+                    if (upError) throw upError;
+
+                    const { data: urlData } = supabaseDB.storage
+                        .from('fotos')
+                        .getPublicUrl(nomeArquivo);
+                        
+                    fotoUrlFinal = urlData.publicUrl;
+                }
+
+                // 2. Salvar Dados na Tabela
+                console.log("Salvando dados...");
+                const { data, error: dbError } = await supabaseDB
+                    .from('memorials')
+                    .insert([{
+                        nome: nome,
+                        nascimento: document.getElementById('inputNasc').value,
+                        falecimento: document.getElementById('inputFalec').value,
+                        biografia: document.getElementById('inputBio').value,
+                        foto_url: fotoUrlFinal
+                    }])
+                    .select();
+
+                if (dbError) throw dbError;
+
+                // 3. Mostrar Resultado e QR Code
+                if (data && data.length > 0) {
+                    const idGerado = data[0].id;
+                    const baseUrl = window.location.href.replace('admin.html', 'index.html');
+                    const linkFinal = `${baseUrl}?id=${idGerado}`;
+
+                    document.getElementById('qrcode').innerHTML = "";
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: linkFinal,
+                        width: 200,
+                        height: 200
+                    });
+
+                    document.getElementById('botaoVer').href = linkFinal;
+                    document.getElementById('resultado').classList.remove('hidden');
+                    console.log("Sucesso absoluto!");
+                }
+
+            } catch (err) {
+                console.error("Erro capturado:", err);
+                alert("Erro ao salvar: " + (err.message || "Verifique o console"));
+            } finally {
+                btn.innerText = "CRIAR E SALVAR MEMORIAL";
+                btn.disabled = false;
+            }
         }
     </script>
 </body>
