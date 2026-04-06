@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Memorial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 p-6">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md">
+        <h1 class="text-2xl font-bold mb-6">Criar Novo Memorial</h1>
+        
+        <div class="space-y-4">
+            <input type="text" id="inputNome" placeholder="Nome Completo" class="w-full p-3 border rounded">
+            <input type="text" id="inputNasc" placeholder="Data Nascimento" class="w-full p-3 border rounded">
+            <input type="text" id="inputFalec" placeholder="Data Falecimento" class="w-full p-3 border rounded">
+            <textarea id="inputBio" placeholder="Pequena Biografia" class="w-full p-3 border rounded"></textarea>
+            
+            <button onclick="gerarLink()" class="w-full bg-blue-600 text-white py-3 rounded font-bold">
+                Gerar Link do Memorial
+            </button>
+        </div>
+
+        <div id="resultado" class="mt-8 hidden">
+            <p class="text-sm font-bold text-gray-600">Link do seu Memorial:</p>
+            <textarea id="linkGerado" class="w-full p-2 bg-gray-100 text-xs mt-2 border rounded" readonly rows="3"></textarea>
+            <p class="text-xs text-blue-600 mt-2">Copie o link acima e cole no gerador de QR Code!</p>
+        </div>
+    </div>
+
+    <script>
+        function gerarLink() {
+            const nome = document.getElementById('inputNome').value;
+            const nasc = document.getElementById('inputNasc').value;
+            const falec = document.getElementById('inputFalec').value;
+            const bio = document.getElementById('inputBio').value;
+
+            // Aqui ele cria o link com os dados que você digitou
+            const baseUrl = window.location.href.replace('admin.html', 'index.html');
+            const linkFinal = `${baseUrl}?nome=${encodeURIComponent(nome)}&nasc=${encodeURIComponent(nasc)}&falec=${encodeURIComponent(falec)}&bio=${encodeURIComponent(bio)}`;
+
+            document.getElementById('linkGerado').value = linkFinal;
+            document.getElementById('resultado').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -7,45 +7,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-stone-100 font-sans text-stone-800">
-
     <div class="max-w-md mx-auto bg-white min-h-screen shadow-xl pb-10">
-        <!-- Imagem -->
-        <img id="foto" src="" class="w-full h-72 object-cover bg-gray-200">
-
+        <img id="foto" src="https://images.unsplash.com/photo-1511227498332-9ef815939ca1?w=500" class="w-full h-72 object-cover">
         <div class="p-8 text-center">
-            <!-- Os IDs (id="...") são como "endereços" para o JavaScript preencher -->
-            <h1 id="nome" class="text-3xl font-serif font-bold italic text-stone-900">Carregando...</h1>
-            <p id="datas" class="text-stone-500 mt-2 italic font-light text-lg"></p>
-            
+            <h1 id="nome" class="text-3xl font-serif font-bold">Carregando...</h1>
+            <p id="datas" class="text-stone-500 mt-2 italic"></p>
             <div class="my-8 border-y border-stone-200 py-6 px-4">
                 <p id="biografia" class="italic leading-relaxed text-stone-600"></p>
-            </div>
-
-            <p class="text-xs uppercase tracking-[0.2em] text-stone-400 font-bold mb-6">Galeria</p>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="aspect-square bg-stone-100 rounded"></div>
-                <div class="aspect-square bg-stone-100 rounded"></div>
             </div>
         </div>
     </div>
 
-    <!-- AQUI COMEÇA A MÁGICA: O BANCO DE DADOS SIMULADO -->
     <script>
-        // Imagine que estes dados vieram de um formulário que o cliente preencheu
-        const dadosDoMemorial = {
-            nome: "Zico da Silva",
-            nascimento: "10/02/1940",
-            falecimento: "15/12/2023",
-            biografia: "Um avô brincalhão que amava pescar e contar histórias para os netos. Sua alegria era o tempero das nossas reuniões de domingo.",
-            fotoUrl: "https://images.unsplash.com/photo-1544144485-391f279d2412?w=500"
-        };
+        // ESSA É A MÁGICA: Ele pega os dados da URL (do link)
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        const nome = urlParams.get('nome') || "Nome não preenchido";
+        const nascimento = urlParams.get('nasc') || "00/00/0000";
+        const falecimento = urlParams.get('falec') || "00/00/0000";
+        const bio = urlParams.get('bio') || "Nenhuma biografia informada.";
 
-        // Aqui o código coloca os dados nos lugares certos automaticamente
-        document.getElementById('nome').innerText = dadosDoMemorial.nome;
-        document.getElementById('datas').innerText = dadosDoMemorial.nascimento + " — " + dadosDoMemorial.falecimento;
-        document.getElementById('biografia').innerText = '"' + dadosDoMemorial.biografia + '"';
-        document.getElementById('foto').src = dadosDoMemorial.fotoUrl;
+        // Coloca os dados na página
+        document.getElementById('nome').innerText = nome;
+        document.getElementById('datas').innerText = nascimento + " — " + falecimento;
+        document.getElementById('biografia').innerText = '"' + bio + '"';
     </script>
-
 </body>
 </html>
