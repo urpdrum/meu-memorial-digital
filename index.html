@@ -5,50 +5,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memorial Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Biblioteca do Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-stone-100 font-sans text-stone-800">
-    <div id="carregando" class="flex items-center justify-center h-screen">Buscando memórias...</div>
+
+    <!-- Tela de Carregamento -->
+    <div id="carregando" class="flex flex-col items-center justify-center h-screen text-stone-400">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-stone-400 mb-4"></div>
+        <p class="italic tracking-widest text-sm">Buscando memórias...</p>
+    </div>
     
+    <!-- Conteúdo do Memorial (Escondido até carregar) -->
     <div id="conteudo" class="max-w-md mx-auto bg-white min-h-screen shadow-xl pb-10 hidden">
-        <img id="fotoPrincipal" src="" class="w-full h-80 object-cover shadow-md">
+        <!-- Foto Principal -->
+        <img id="fotoPrincipal" src="" class="w-full h-80 object-cover shadow-md bg-stone-200">
+        
         <div class="p-8 text-center">
-            <h1 id="nome" class="text-3xl font-serif font-bold text-stone-900 uppercase"></h1>
+            <h1 id="nome" class="text-3xl font-serif font-bold text-stone-900 uppercase tracking-tight"></h1>
             <p id="datas" class="text-stone-400 mt-2 italic font-light text-lg"></p>
+            
             <div class="my-8 border-y border-stone-100 py-8 px-4 bg-stone-50/50 rounded-lg">
                 <p id="biografia" class="italic leading-relaxed text-stone-600 text-lg"></p>
             </div>
-            <p class="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold opacity-30">Memória Eterna</p>
+
+            <div class="mt-10 opacity-30">
+                <p class="text-[10px] uppercase tracking-[0.5em] text-stone-400 font-bold mb-4 italic tracking-widest">Memória Eterna</p>
+                <div class="w-12 h-px bg-stone-300 mx-auto"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://jfurmgguijnfnuttxusq.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmdXJtZ2d1aWpuZm51dHR4dXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MTIyNTcsImV4cCI6MjA5MTA4ODI1N30.pKHK5WVzdc0ctby8nVUGR_gdt3jTEwMqgsBX8e_1cNw';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // CONFIGURAÇÃO DO SUPABASE (Use os mesmos dados do admin.html)
+        const MINHA_URL = 'SUA_URL_AQUI'; 
+        const MINHA_KEY = 'SUA_ANON_KEY_AQUI';
+
+        // Inicializa a conexão com nome diferente para não dar erro
+        const supabaseDB = supabase.createClient(MINHA_URL, MINHA_KEY);
 
         async function carregarMemorial() {
+            console.log("Iniciando busca no banco...");
+            
+            // 1. Pega o ID que está no link (ex: ?id=123)
             const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
+            const idMemorial = urlParams.get('id');
 
-            if (id) {
-                const { data, error } = await supabase
+            if (!idMemorial) {
+                document.getElementById('carregando').innerText = "Memorial não encontrado (ID ausente).";
+                return;
+            }
+
+            try {
+                // 2. Busca os dados na tabela 'memorials' usando o ID
+                const { data, error } = await supabaseDB
                     .from('memorials')
                     .select('*')
-                    .eq('id', id)
+                    .eq('id', idMemorial)
                     .single();
 
+                if (error) throw error;
+
                 if (data) {
+                    console.log("Dados encontrados:", data.nome);
+                    
+                    // 3. Preenche os campos da página
                     document.getElementById('nome').innerText = data.nome;
                     document.getElementById('datas').innerText = data.nascimento + " — " + data.falecimento;
                     document.getElementById('biografia').innerText = '"' + data.biografia + '"';
-                    document.getElementById('fotoPrincipal').src = data.foto_url || "https://images.unsplash.com/photo-1511227498332-9ef815939ca1?w=500";
                     
+                    // 4. Se tiver foto, coloca. Se não, usa uma padrão.
+                    if (data.foto_url) {
+                        document.getElementById('fotoPrincipal').src = data.foto_url;
+                    } else {
+                        document.getElementById('fotoPrincipal').src = "https://images.unsplash.com/photo-1501290830384-9cbb24d216e5?w=500";
+                    }
+
+                    // 5. Esconde o carregando e mostra o conteúdo
                     document.getElementById('carregando').classList.add('hidden');
                     document.getElementById('conteudo').classList.remove('hidden');
+                } else {
+                    document.getElementById('carregando').innerText = "Memorial não encontrado no banco.";
                 }
+
+            } catch (err) {
+                console.error("Erro ao buscar:", err);
+                document.getElementById('carregando').innerText = "Erro ao carregar dados. Verifique a conexão.";
             }
         }
+
+        // Executa a função assim que a página abrir
         carregarMemorial();
     </script>
 </body>
